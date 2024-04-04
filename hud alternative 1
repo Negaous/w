@@ -1,0 +1,86 @@
+#include <iostream>
+#include <Windows.h>
+#include <vector>
+#include <string>
+
+// Define player structure
+struct Player {
+    float x, y, z;
+};
+
+// Function to read memory
+template<typename T>
+T ReadMemory(DWORD_PTR address) {
+    T value;
+    ReadProcessMemory(GetCurrentProcess(), (LPVOID)address, &value, sizeof(T), NULL);
+    return value;
+}
+
+// Function to write memory
+template<typename T>
+void WriteMemory(DWORD_PTR address, T value) {
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)address, &value, sizeof(T), NULL);
+}
+
+// Function to draw HUD
+void DrawHUD(bool espEnabled, bool flightEnabled, bool xrayEnabled) {
+    system("cls"); // Clear screen
+    std::cout << "==== Cheat Status ====" << std::endl;
+    std::cout << "ESP: " << (espEnabled ? "Enabled" : "Disabled") << std::endl;
+    std::cout << "Flight: " << (flightEnabled ? "Enabled" : "Disabled") << std::endl;
+    std::cout << "X-Ray: " << (xrayEnabled ? "Enabled" : "Disabled") << std::endl;
+    std::cout << "======================" << std::endl;
+}
+
+int main() {
+    // Define addresses and offsets for CraftRise memory manipulation
+    DWORD_PTR craftriseBaseAddress = 0x87654321; // Address of CraftRise base in memory
+    DWORD_PTR playerBaseAddress = craftriseBaseAddress + 0x12345678; // Offset for player data
+
+    std::vector<Player> playerList; // ArrayList to store player data
+
+    bool espEnabled = false;
+    bool flightEnabled = false;
+    bool xrayEnabled = false;
+
+    while (true) {
+        // Update HUD
+        DrawHUD(espEnabled, flightEnabled, xrayEnabled);
+
+        // ESP Toggle
+        if (GetAsyncKeyState('B') & 1) {
+            espEnabled = !espEnabled;
+        }
+
+        // Flight Toggle
+        if (GetAsyncKeyState('F') & 1) {
+            flightEnabled = !flightEnabled;
+        }
+
+        // X-Ray Toggle
+        if (GetAsyncKeyState('X') & 1) {
+            xrayEnabled = !xrayEnabled;
+        }
+
+        if (espEnabled) {
+            // ESP Cheat: Read player position and render overlay on screen
+            float playerX = ReadMemory<float>(playerBaseAddress + 0x10);
+            float playerY = ReadMemory<float>(playerBaseAddress + 0x14);
+            float playerZ = ReadMemory<float>(playerBaseAddress + 0x18);
+            std::cout << "Player Position: X = " << playerX << ", Y = " << playerY << ", Z = " << playerZ << std::endl;
+        }
+
+        if (flightEnabled) {
+            // Flight Cheat: Write modified position to enable flight
+            float newPlayerY = ReadMemory<float>(playerBaseAddress + 0x14) + 10.0f; // Adjust Y position for flight
+            WriteMemory<float>(playerBaseAddress + 0x14, newPlayerY);
+        }
+
+        // X-Ray Cheat: Manipulate rendering to make certain blocks transparent
+        // Implementation depends on CraftRise's rendering engine and block data structure
+
+        Sleep(100); // Adjust sleep time according to your needs
+    }
+
+    return 0;
+}
