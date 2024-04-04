@@ -60,7 +60,6 @@ int main() {
         // X-Ray Cheat: Manipulate rendering to make certain blocks transparent
         // Implementation depends on CraftRise's rendering engine and block data structure
 
-        // Continue updating cheats and manipulating game memory as needed
 
         Sleep(100); // Adjust sleep time according to your needs
     }
